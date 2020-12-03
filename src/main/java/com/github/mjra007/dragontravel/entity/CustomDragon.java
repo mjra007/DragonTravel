@@ -1,43 +1,35 @@
 package com.github.mjra007.dragontravel.entity;
 
 import com.flowpowered.math.vector.Vector3d;
-import com.github.mjra007.dragontravel.mixin.SPacketSpawnMobAccessor;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import net.minecraft.entity.boss.EntityDragon;
-import net.minecraft.network.play.server.SPacketSpawnMob;
 import net.minecraft.world.World;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.Location;
 public class CustomDragon extends EntityDragon {
 
-  private static Constructor createSpongeEntity;
-  private static Method registerCustomEntityMethod;
-  private static Object instanceOfEntityTypeRegistry;
+  private Location<org.spongepowered.api.world.World> toLoc;
 
-  private Location toLoc;
-
-  private Location fromLoc;
+  private Location<org.spongepowered.api.world.World> fromLoc;
 
   private double xPerTick;
   private double yPerTick;
   private double zPerTick;
   // Travel
-  private Location midLocA; // Middle location source world
-  private Location midLocB; // Middle location target world
+  private Location<org.spongepowered.api.world.World> midLocA; // Middle location source world
+  private Location<org.spongepowered.api.world.World> midLocB; // Middle location target world
 
   private int currentWayPointIndex;
 
-  private org.spongepowered.api.world.World spongeWorld;
+  private final org.spongepowered.api.world.World spongeWorld;
 
-  public Location[] waypoints;
+  public Location<org.spongepowered.api.world.World>[] waypoints;
 
   public CustomDragon(World worldIn) {
     super(worldIn);
     spongeWorld = Sponge.getServer().getWorld(worldIn.getWorldInfo().getWorldName()).get();
   }
 
-  public CustomDragon(World worldIn, Location[] waypoints) {
+  public CustomDragon(World worldIn, Location<org.spongepowered.api.world.World>[] waypoints) {
     super(worldIn);
     spongeWorld = Sponge.getServer().getWorld(worldIn.getWorldInfo().getWorldName()).get();
     this.waypoints = waypoints;
@@ -115,7 +107,7 @@ public class CustomDragon extends EntityDragon {
 
       this.currentWayPointIndex++;
 
-      this.fromLoc = new Location(spongeWorld, new Vector3d(x,y,z)) ;
+      this.fromLoc = new Location<>(spongeWorld, new Vector3d(x,y,z)) ;
       this.toLoc = waypoints[currentWayPointIndex];
       System.out.println("Dragon Pos X: "+posX +", Z: "+ posZ+", Y: "+posY+
           ", waypoint index: "+ currentWayPointIndex);
@@ -145,21 +137,16 @@ public class CustomDragon extends EntityDragon {
     yPerTick = Math.abs(distY) / tick;
   }
 
-  public void setWaypoints(Location[] waypoints) {
+  public void setWaypoints(Location<org.spongepowered.api.world.World>[] waypoints) {
      this.currentWayPointIndex = 0;
      this.waypoints =waypoints;
      this.toLoc = waypoints[currentWayPointIndex];
   }
 
   public void startFlight(){
-    this.fromLoc = new Location(spongeWorld, new Vector3d(posX,posY,posZ)) ;
+    this.fromLoc = new Location<>(spongeWorld, new Vector3d(posX,posY,posZ)) ;
     setMoveFlight();
   }
 
-  public SPacketSpawnMob createSpawnPacket() {
-    SPacketSpawnMob packet = new SPacketSpawnMob(this);
-    SPacketSpawnMobAccessor accessor = (SPacketSpawnMobAccessor)packet;
-    accessor.accessor$settype(63);
-    return packet;
-  }
+
 }

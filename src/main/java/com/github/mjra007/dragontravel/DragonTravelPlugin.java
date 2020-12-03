@@ -1,19 +1,16 @@
 package com.github.mjra007.dragontravel;
 
 import com.github.mjra007.dragontravel.entity.CustomDragon;
-import java.util.stream.Collectors;
-import net.minecraft.world.World;
 import org.slf4j.Logger;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
- import org.spongepowered.api.event.filter.cause.First;
- import org.spongepowered.api.event.game.state.GameStartedServerEvent;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.world.Location;
@@ -77,6 +74,7 @@ public class DragonTravelPlugin {
           .findFirst() ;
       if(customDragon.isPresent()){
         CUSTOM_ENDER_DRAGON = customDragon.get();
+        INSTANCE.logger.info("Dragon travel sucessfully registered CustomDragon!");
       }else{
         INSTANCE.logger.info("Sponge failed to catalog CustomDragon,"
             + " was entity not registered? Please contact Dragon Travel author!");

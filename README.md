@@ -1,5 +1,6 @@
-# Dragon Travel WIP
-
+# Dragon Travel <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/b6/Dragon_Head.png/revision/latest/scale-to-width-down/150?cb=20200309195302" width="25" height="25">
+WIP
+ 
 A port of the [original DragonTravel][1] plugin for the [SpongeAPI][2].
 Works on [SpongeVanilla][4] and [SpongeForge][3].
 

@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "minVersion": "0.8.0",
+  "package": "com.github.mjra007.dragontravel.mixin.spongevanilla",
+  "refmap": "mixins.dragontravel.spongevanilla.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "EntityListMixin"
+  ]
+}

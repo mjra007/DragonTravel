@@ -1,4 +1,4 @@
-package com.github.mjra007.dragontravel.mixin;
+package com.github.mjra007.dragontravel.mixin.spongeforge;
 
 import java.util.Map;
 import net.minecraft.util.ResourceLocation;

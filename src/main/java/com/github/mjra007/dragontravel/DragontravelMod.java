@@ -24,16 +24,10 @@ public class DragontravelMod {
   public static final String MOD_NAME = "Dragontravel SpongeForge";
   public static final String VERSION = "1.0-SNAPSHOT";
   public Logger modLog;
-  /**
-   * This is the instance of your mod as created by Forge. It will never be null.
-   */
+
   @Mod.Instance(MOD_ID)
   public static DragontravelMod INSTANCE;
 
-  /**
-   * This is the first initialization event. Register tile entities here. The registry events below
-   * will have fired prior to entry to this method.
-   */
   @Mod.EventHandler
   public void preinit(FMLPreInitializationEvent event) {
     modLog = event.getModLog();

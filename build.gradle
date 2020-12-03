@@ -14,7 +14,6 @@ buildscript {
     }
 }
 
-
 plugins {
     id 'org.spongepowered.plugin' version '0.9.0'
 }
@@ -25,23 +24,46 @@ apply plugin: 'org.spongepowered.mixin'
 group = 'com.github.mjra007'
 version = '1.0-SNAPSHOT'
 archivesBaseName = 'dragontravel'
+def spongeforgejar = false
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 sourceSets {
     main {
-        ext.refMap = "mixins.dragontravel.refmap.json"
+        if(spongeforgejar){
+            ext.refMap ='mixins.dragontravel.spongeforge.refmap.json'
+        }else{
+            ext.refMap ='mixins.dragontravel.spongevanilla.refmap.json'
+        }
+
+        resources{
+            if(spongeforgejar){
+                exclude 'mixins.dragontravel.spongevanilla.json'
+            }else{
+                exclude 'mixins.dragontravel.spongeforge.json'
+            }
+        }
+
+        java {
+            if(spongeforgejar){
+                exclude 'com/github/mjra007/dragontravel/mixin/spongevanilla/**'
+            }else{
+                exclude 'com/github/mjra007/dragontravel/mixin/spongeforge/**'
+                exclude 'com/github/mjra007/dragontravel/DragontravelMod.java'
+            }
+        }
     }
 }
 
 jar {
+
     manifest.attributes(
             'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-            'MixinConfigs': 'mixins.dragontravel.json',
+            'MixinConfigs': spongeforgejar ? 'mixins.dragontravel.spongeforge':'mixins.dragontravel.spongevanilla.json',
             'FMLCorePluginContainsFMLMod': 'true',
             'ForceLoadAsMod': 'true'
     )
-}
+ }
 
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.

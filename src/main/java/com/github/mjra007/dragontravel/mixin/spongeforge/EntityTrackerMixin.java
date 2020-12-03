@@ -1,4 +1,4 @@
-package com.github.mjra007.dragontravel.mixin;
+package com.github.mjra007.dragontravel.mixin.spongeforge;
 
 import com.github.mjra007.dragontravel.entity.CustomDragon;
 import net.minecraft.entity.Entity;
@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = {EntityTracker.class} )
+@Mixin(value = {EntityTracker.class})
 public abstract class EntityTrackerMixin {
 
   public EntityTrackerMixin() {
