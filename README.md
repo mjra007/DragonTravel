@@ -9,16 +9,12 @@ Works on [SpongeVanilla][4] and [SpongeForge][3].
 [4]: https://github.com/SpongePowered/SpongeVanilla
 
 ### Features
-
-
-### Depending on this plugin
-You can depend on this plugin using jitpack. 
-
 * Create flights which consist of waypoints.
 * Create signs/holograms that when click trigger the flight
 * Set prices for flights.
 * Different languages support, all messages are customisable.
-
+### Depending on this plugin
+You can depend on this plugin using jitpack. 
 **Gradle**
 ```
 repositories {
