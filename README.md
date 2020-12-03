@@ -1,4 +1,4 @@
-Dragon Travel
+## Dragon Travel
 
 A rewrite of the [original DragonTravel][1] plugin for the [SpongeAPI][2].
 Works on [SpongeVanilla][4] and [SpongeForge][3].
