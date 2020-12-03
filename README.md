@@ -7,7 +7,6 @@ Works on [SpongeVanilla][4] and [SpongeForge][3].
 [2]: https://github.com/SpongePowered/SpongeAPI
 [3]: https://github.com/SpongePowered/SpongeForge
 [4]: https://github.com/SpongePowered/SpongeVanilla
-
 ### Features
 * Create flights which consist of waypoints.
 * Create signs/holograms that when click trigger the flight
