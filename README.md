@@ -2,7 +2,6 @@
 
 A port of the [original DragonTravel][1] plugin for the [SpongeAPI][2].
 Works on [SpongeVanilla][4] and [SpongeForge][3].
-
 [1]: https://github.com/Phiwa/DragonTravel
 [2]: https://github.com/SpongePowered/SpongeAPI
 [3]: https://github.com/SpongePowered/SpongeForge
