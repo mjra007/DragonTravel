@@ -1,22 +1,27 @@
 package com.github.mjra007.dragontravel.entity;
 
 import com.flowpowered.math.vector.Vector3d;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.EntityDragon;
+import net.minecraft.pathfinding.Path;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.Location;
+
 public class CustomDragon extends EntityDragon {
 
-  private Location<org.spongepowered.api.world.World> toLoc;
+  private Location<org.spongepowered.api.world.World> endPos;
+  private Location<org.spongepowered.api.world.World> startPos;
+  private Path currentPath;
+  private Vec3d targetLocation;
+  private double xPositionIncrement;
+  private double yPositionIncrement;
+  private double zPositionIncrement;
 
-  private Location<org.spongepowered.api.world.World> fromLoc;
-
-  private double xPerTick;
-  private double yPerTick;
-  private double zPerTick;
-  // Travel
-  private Location<org.spongepowered.api.world.World> midLocA; // Middle location source world
-  private Location<org.spongepowered.api.world.World> midLocB; // Middle location target world
+  private Entity rider;
 
   private int currentWayPointIndex;
 
@@ -24,33 +29,29 @@ public class CustomDragon extends EntityDragon {
 
   public Location<org.spongepowered.api.world.World>[] waypoints;
 
+  public Path path;
+
   public CustomDragon(World worldIn) {
     super(worldIn);
     spongeWorld = Sponge.getServer().getWorld(worldIn.getWorldInfo().getWorldName()).get();
   }
 
-  public CustomDragon(World worldIn, Location<org.spongepowered.api.world.World>[] waypoints) {
-    super(worldIn);
-    spongeWorld = Sponge.getServer().getWorld(worldIn.getWorldInfo().getWorldName()).get();
-    this.waypoints = waypoints;
-  }
-
-  /**
-   * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
-   * use this to react to sunlight and start to burn.
-   */
   @Override
   public void onLivingUpdate()
   {
+    if (rider != null) {
+      if (this.getRidingEntity() != null) {
+        this.startRiding(rider, true);
+      }
+      rider.setPosition(posX, posY, posZ);
+    }
 
-    if (midLocA != null || toLoc != null) {
-      Vector3d a = fromLoc.getPosition();
-      Vector3d b = midLocA != null ? midLocA.getPosition() : toLoc.getPosition();
-      double distX = b.getX() - a.getX();
-      double distY = b.getY() - a.getY();
-      double distZ = b.getZ() - a.getZ();
+    setPosition(posX, posY,posZ);
+    if (endPos != null) {
+      double distX = endPos.getX() - startPos.getX();
+      double distY = endPos.getY() - startPos.getY();
+      double distZ = endPos.getZ() - startPos.getZ();
 
-      //vector trig functions have to be in rads...
       float yaw = 0f, pitch = (float) -Math.atan(distY / Math.sqrt(distX * distX + distZ * distZ));
 
       if (distX != 0) {
@@ -63,90 +64,71 @@ public class CustomDragon extends EntityDragon {
       } else if (distZ < 0) {
         yaw = (float) Math.PI;
       }
-      //back to degrees
-      setRotation(-yaw * 180F / (float) Math.PI - 180F, pitch * 180F / (float) Math.PI - 180F);
 
+      setRotation(MathHelper.wrapDegrees(yaw),  MathHelper.wrapDegrees(pitch));
     }
-
 
     if(waypoints!=null)
      flight();
   }
 
   public void flight() {
-    double x = this.posX;
-    double y = this.posY;
-    double z = this.posZ;
+    if ( posX != waypoints[currentWayPointIndex].getX())
+      if (posX < waypoints[currentWayPointIndex].getX())
+        posX += xPositionIncrement;
+      else
+        posX -= xPositionIncrement;
+    if ( posY != waypoints[currentWayPointIndex].getY())
+      if ( posY < waypoints[currentWayPointIndex].getY())
+        posY += yPositionIncrement;
+      else
+        posY -= yPositionIncrement;
+    if ( posZ != waypoints[currentWayPointIndex].getZ())
+      if (posZ < waypoints[currentWayPointIndex].getZ())
+        posZ += zPositionIncrement;
+      else
+        posZ -= zPositionIncrement;
 
-    if ( x != waypoints[currentWayPointIndex].getX())
-      if (x < waypoints[currentWayPointIndex].getX())
-        x += xPerTick;
-      else
-        x -= xPerTick;
-    if ( y != waypoints[currentWayPointIndex].getY())
-      if ( y < waypoints[currentWayPointIndex].getY())
-        y += yPerTick;
-      else
-        y -= yPerTick;
-    if ( z != waypoints[currentWayPointIndex].getZ())
-      if (z < waypoints[currentWayPointIndex].getZ())
-        z += zPerTick;
-      else
-        z -= zPerTick;
-    if ((Math.abs( z - waypoints[currentWayPointIndex].getZ()) <= 3)
-        && Math.abs( x - waypoints[currentWayPointIndex].getX()) <= 3
-        && (Math.abs(y - waypoints[currentWayPointIndex].getY()) <= 5)) {
+    if ((Math.abs( posZ - waypoints[currentWayPointIndex].getZ()) <= 3)
+        && Math.abs( posX - waypoints[currentWayPointIndex].getX()) <= 3
+        && (Math.abs(posY - waypoints[currentWayPointIndex].getY()) <= 5)) {
 
-  setPosition(x,y,z);
       if (currentWayPointIndex == waypoints.length - 1) {
         currentWayPointIndex =0;
-        setPosition(waypoints[currentWayPointIndex].getX(), waypoints[currentWayPointIndex].getY(), waypoints[currentWayPointIndex].getZ());
-      //  DragonTravel.getInstance().getDragonManager().removeRiderAndDragon(getEntity(), flight.getWaypoints().get(currentWayPointIndex).getAsLocation());
-        return;
+          System.out.println("End");
+          return;
       }
 
       this.currentWayPointIndex++;
 
-      this.fromLoc = new Location<>(spongeWorld, new Vector3d(x,y,z)) ;
-      this.toLoc = waypoints[currentWayPointIndex];
+      this.startPos = new Location<>(spongeWorld, new Vector3d(posX,posY,posZ)) ;
+      this.endPos = waypoints[currentWayPointIndex];
       System.out.println("Dragon Pos X: "+posX +", Z: "+ posZ+", Y: "+posY+
           ", waypoint index: "+ currentWayPointIndex);
+      setMoveFlight();
     }
-    setMoveFlight();
   }
 
   public void setMoveFlight() {
-    double dist;
-    double distX ;
-    double distY ;
-    double distZ ;
-    if (midLocA != null) {
-      dist = fromLoc.getPosition().distance(midLocA.getPosition());
-      distX = fromLoc.getX() - midLocA.getX();
-      distY = fromLoc.getY() - midLocA.getY();
-      distZ = fromLoc.getZ() - midLocA.getZ();
-    } else {
-      dist = fromLoc.getPosition().distance(toLoc.getPosition());
-      distX = fromLoc.getX() - toLoc.getX();
-      distY = fromLoc.getY() - toLoc.getY();
-      distZ = fromLoc.getZ() - toLoc.getZ();
-    }
-    double tick = dist / 0.6;
-    xPerTick = Math.abs(distX) / tick;
-    zPerTick = Math.abs(distZ) / tick;
-    yPerTick = Math.abs(distY) / tick;
+    double distX = startPos.getX() - waypoints[currentWayPointIndex].getX();
+    double distY = startPos.getY() - waypoints[currentWayPointIndex].getY();
+    double distZ = startPos.getZ() - waypoints[currentWayPointIndex].getZ();
+    double tick = Math.sqrt((distX * distX) + (distY * distY)
+        + (distZ * distZ)) / 1;
+    this.xPositionIncrement = Math.abs(distX) / tick;
+    this.yPositionIncrement = Math.abs(distY) / tick;
+    this.zPositionIncrement = Math.abs(distZ) / tick;
+  }
+
+  public void startFlight(Player player){
+    this.startPos = new Location<>(spongeWorld, new Vector3d(posX,posY,posZ)) ;
+    setMoveFlight();
+    this.rider = (Entity) player;
   }
 
   public void setWaypoints(Location<org.spongepowered.api.world.World>[] waypoints) {
      this.currentWayPointIndex = 0;
      this.waypoints =waypoints;
-     this.toLoc = waypoints[currentWayPointIndex];
+     this.endPos = waypoints[currentWayPointIndex];
   }
-
-  public void startFlight(){
-    this.fromLoc = new Location<>(spongeWorld, new Vector3d(posX,posY,posZ)) ;
-    setMoveFlight();
-  }
-
-
 }
