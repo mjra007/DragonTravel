@@ -1,4 +1,4 @@
-#Dragon Travel WIP
+# Dragon Travel WIP
 
 A port of the [original DragonTravel][1] plugin for the [SpongeAPI][2].
 Works on [SpongeVanilla][4] and [SpongeForge][3].
@@ -8,10 +8,10 @@ Works on [SpongeVanilla][4] and [SpongeForge][3].
 [3]: https://github.com/SpongePowered/SpongeForge
 [4]: https://github.com/SpongePowered/SpongeVanilla
 
-###Features
+### Features
 
 
-###Depending on this plugin
+### Depending on this plugin
 You can depend on this plugin using jitpack. 
 
 * Create flights which consist of waypoints.
