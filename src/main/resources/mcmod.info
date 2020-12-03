@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "dragontravel_mod",
+    "name": "Dragontravel SpongeForge",
+    "description": "",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
