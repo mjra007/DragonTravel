@@ -1,134 +1,172 @@
 package com.github.mjra007.dragontravel.entity;
 
-import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.GenericMath;
+import com.flowpowered.math.vector.Vector3i;
+import com.github.mjra007.dragontravel.Path;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.EntityDragon;
-import net.minecraft.pathfinding.Path;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.world.Location;
 
+import com.flowpowered.math.vector.Vector3d;
+
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.util.Tuple;
+
+import scala.Tuple3;
+
+//https://bukkit.org/threads/tutorial-how-to-calculate-vectors.138849/
 public class CustomDragon extends EntityDragon {
 
-  private Location<org.spongepowered.api.world.World> endPos;
-  private Location<org.spongepowered.api.world.World> startPos;
   private Path currentPath;
-  private Vec3d targetLocation;
+   public double speed=0.6;
+
   private double xPositionIncrement;
   private double yPositionIncrement;
   private double zPositionIncrement;
 
+  private Tuple<Float, Double[]> squaredDistanceAndCoordsDist;
+
   private Entity rider;
-
-  private int currentWayPointIndex;
-
-  private final org.spongepowered.api.world.World spongeWorld;
-
-  public Location<org.spongepowered.api.world.World>[] waypoints;
-
-  public Path path;
 
   public CustomDragon(World worldIn) {
     super(worldIn);
-    spongeWorld = Sponge.getServer().getWorld(worldIn.getWorldInfo().getWorldName()).get();
-  }
+   }
 
   @Override
   public void onLivingUpdate()
   {
-    if (rider != null) {
-      if (this.getRidingEntity() != null) {
+    //Path is not set so skip logic this tick
+    if(rider== null || currentPath==null) return;
+
+    //If this is the final location then dismount and kill entity
+    if(isThisFinalDestination()){
+      System.out.println("Reached final target!");
+      currentPath.setCurrentPathIndex(0);
+      currentPath = null;
+      dismountRidingEntity();
+      return;
+    }
+
+    if(hasItReachTheNexTarget()){
+      //Change current path target
+      currentPath.incrementPathIndex();
+      //Calculate squareddistanceandcoords dist
+      squaredDistanceAndCoordsDist =
+          calculateSquareDistanceAndCoordinatesDistance(new Vector3d(posX, posY, posZ), currentPath.getCurrentPos());
+      //Calculate position increment
+      calculatePositionIncrement(squaredDistanceAndCoordsDist.getFirst(), squaredDistanceAndCoordsDist.getSecond());
+    }
+
+    //Set position
+    Tuple3<Double, Double, Double> newPos =  calculateNewPosition();
+
+    //increment rotation
+    Tuple<Float, Float> newRotation = getDirection(new Vector3d(posX,posY,posZ).sub(currentPath.getCurrentPos()));
+
+         //calculateRotationIncrement(squaredDistanceAndCoordsDist.getFirst(), squaredDistanceAndCoordsDist.getSecond()[0],
+        //squaredDistanceAndCoordsDist.getSecond()[1], squaredDistanceAndCoordsDist.getSecond()[2]);
+
+    //Mount player again as it can unmount sometimes if the dragon goes through water for example
+    if (this.getRidingEntity() != null)
         this.startRiding(rider, true);
-      }
-      rider.setPosition(posX, posY, posZ);
-    }
 
-    setPosition(posX, posY,posZ);
-    if (endPos != null) {
-      double distX = endPos.getX() - startPos.getX();
-      double distY = endPos.getY() - startPos.getY();
-      double distZ = endPos.getZ() - startPos.getZ();
-
-      float yaw = 0f, pitch = (float) -Math.atan(distY / Math.sqrt(distX * distX + distZ * distZ));
-
-      if (distX != 0) {
-        if (distX < 0) {
-          yaw = (float) (1.5 * Math.PI);
-        } else {
-          yaw = (float) (0.5 * Math.PI);
-        }
-        yaw = yaw - (float) Math.atan(distZ / distX);
-      } else if (distZ < 0) {
-        yaw = (float) Math.PI;
-      }
-
-      setRotation(MathHelper.wrapDegrees(yaw),  MathHelper.wrapDegrees(pitch));
-    }
-
-    if(waypoints!=null)
-     flight();
+     setPosition(newPos._1(),newPos._2(),newPos._3());
+     setRotation(newRotation.getFirst(), newRotation.getSecond());
   }
 
-  public void flight() {
-    if ( posX != waypoints[currentWayPointIndex].getX())
-      if (posX < waypoints[currentWayPointIndex].getX())
-        posX += xPositionIncrement;
-      else
-        posX -= xPositionIncrement;
-    if ( posY != waypoints[currentWayPointIndex].getY())
-      if ( posY < waypoints[currentWayPointIndex].getY())
-        posY += yPositionIncrement;
-      else
-        posY -= yPositionIncrement;
-    if ( posZ != waypoints[currentWayPointIndex].getZ())
-      if (posZ < waypoints[currentWayPointIndex].getZ())
-        posZ += zPositionIncrement;
-      else
-        posZ -= zPositionIncrement;
+ // private Tuple<Double,Double> calculateRotationIncrement(Float squaredDistance, Double distanceX, Double distanceY, Double distanceZ) {
+//    double yaw = Math.atan2(distanceZ, distanceX);
+//    double pitch = Math.atan2(squaredDistance, distanceY) + Math.PI;
+//    Location origin; //our original location (Point A)
+//    Vector target; //our target location (Point B)
+//    currentPath.getCurrentPos().toVector4().setDirection(target.subtract(origin.toVector())); //set the origin's direction to be the direction vector between point A and B.
+//    Vect
+//    float yaw = origin.getYaw();
+//    return new Tuple<>(Math.toDegrees(yaw), Math.toDegrees(pitch));
+//  }
 
-    if ((Math.abs( posZ - waypoints[currentWayPointIndex].getZ()) <= 3)
-        && Math.abs( posX - waypoints[currentWayPointIndex].getX()) <= 3
-        && (Math.abs(posY - waypoints[currentWayPointIndex].getY()) <= 5)) {
-
-      if (currentWayPointIndex == waypoints.length - 1) {
-        currentWayPointIndex =0;
-          System.out.println("End");
-          return;
-      }
-
-      this.currentWayPointIndex++;
-
-      this.startPos = new Location<>(spongeWorld, new Vector3d(posX,posY,posZ)) ;
-      this.endPos = waypoints[currentWayPointIndex];
-      System.out.println("Dragon Pos X: "+posX +", Z: "+ posZ+", Y: "+posY+
-          ", waypoint index: "+ currentWayPointIndex);
-      setMoveFlight();
-    }
+  private Tuple3<Double, Double, Double> calculateNewPosition() {
+    Vector3d target = currentPath.getCurrentPos();
+    double motX = posX < target.getX() ? posX + xPositionIncrement : posX- xPositionIncrement;
+    double motY = posY < target.getY() ? posY +  yPositionIncrement : posY- yPositionIncrement;
+    double motZ = posZ < target.getZ() ? posZ +  zPositionIncrement : posZ- zPositionIncrement;
+    return new Tuple3<>(motX,motY, motZ);
   }
 
-  public void setMoveFlight() {
-    double distX = startPos.getX() - waypoints[currentWayPointIndex].getX();
-    double distY = startPos.getY() - waypoints[currentWayPointIndex].getY();
-    double distZ = startPos.getZ() - waypoints[currentWayPointIndex].getZ();
-    double tick = Math.sqrt((distX * distX) + (distY * distY)
-        + (distZ * distZ)) / 1;
-    this.xPositionIncrement = Math.abs(distX) / tick;
-    this.yPositionIncrement = Math.abs(distY) / tick;
-    this.zPositionIncrement = Math.abs(distZ) / tick;
+  private void calculatePositionIncrement(float squaredDistance, Double[] distanceCoordinates){
+
+    double distPerTick =  squaredDistance/ speed;
+    xPositionIncrement = distanceCoordinates[0]/ distPerTick;
+    yPositionIncrement = distanceCoordinates[1] / distPerTick;
+    zPositionIncrement = distanceCoordinates[2] / distPerTick;
   }
 
-  public void startFlight(Player player){
-    this.startPos = new Location<>(spongeWorld, new Vector3d(posX,posY,posZ)) ;
-    setMoveFlight();
+  private boolean hasItReachTheNexTarget() {
+    Vector3d nextTarget = currentPath.getCurrentPos();
+    return Math.abs(nextTarget.getX() - posX) < 2
+        && Math.abs(nextTarget.getY() - posY) < 2
+        && Math.abs(nextTarget.getZ() - posZ) < 2;
+  }
+
+
+
+  @SuppressWarnings("ConstantConditions")
+  private boolean isThisFinalDestination(){
+    Vector3d finalPathPoint = currentPath.getFinalPathPoint();
+    return Math.abs(finalPathPoint.getX() - posX) < 2
+        && Math.abs(finalPathPoint.getY() - posY) < 2
+        && Math.abs(finalPathPoint.getZ() - posZ) < 2;
+  }
+
+  public void startFlight(Player player,Path path){
     this.rider = (Entity) player;
+    this.currentPath = path;
+    //Calculate squareddistanceandcoords dist
+    squaredDistanceAndCoordsDist =
+        calculateSquareDistanceAndCoordinatesDistance(new Vector3d(posX, posY, posZ), currentPath.getCurrentPos());
+    //Calculate position increment
+    calculatePositionIncrement(squaredDistanceAndCoordsDist.getFirst(), squaredDistanceAndCoordsDist.getSecond());
   }
 
-  public void setWaypoints(Location<org.spongepowered.api.world.World>[] waypoints) {
-     this.currentWayPointIndex = 0;
-     this.waypoints =waypoints;
-     this.endPos = waypoints[currentWayPointIndex];
+  Double[] distanceCoordinates = new Double[3];
+  public Tuple<Float, Double[]> calculateSquareDistanceAndCoordinatesDistance(Vector3d original, Vector3d vec)
+  {
+    distanceCoordinates[0] = Math.abs(vec.getX() - original.getX());
+    distanceCoordinates[1] = Math.abs(vec.getY() - original.getY());
+    distanceCoordinates[2] = Math.abs(vec.getZ() - original.getZ());
+    return new Tuple<>(MathHelper.sqrt(distanceCoordinates[0] * distanceCoordinates[0]
+        + distanceCoordinates[1]  * distanceCoordinates[1]
+        + distanceCoordinates[2] * distanceCoordinates[2]),
+        distanceCoordinates);
   }
+
+  /**
+   * Gets the Yaw and Pitch  to point
+   * in the direction of the vector.
+   * https://github.com/Bukkit/Bukkit/blob/f210234e59275330f83b994e199c76f6abd41ee7/src/main/java/org/bukkit/Location.java#L264
+   */
+  public Tuple<Float, Float> getDirection(Vector3d target) {
+    float yaw = 0, pitch;
+    final double _2PI = 2 * Math.PI;
+    final double x = target.getX();
+    final double z = target.getZ();
+
+    if (x == 0 && z == 0) {
+      pitch = target.getY() > 0 ? -90 : 90;
+      return new Tuple<>(yaw, pitch);
+    }
+
+    double theta = Math.atan2(-x, z);
+    yaw = (float) Math.toDegrees((theta + _2PI) % _2PI);
+
+    double x2 = x*x;
+    double z2 = z*z;
+    double xz = GenericMath.sqrt(x2 + z2);
+    pitch = (float) Math.toDegrees(Math.atan(-target.getY() / xz));
+
+    return new Tuple<>(yaw,pitch);
+  }
+
 }

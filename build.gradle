@@ -1,6 +1,9 @@
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven {
+            name= 'forge'
+            url = 'https://files.minecraftforge.net/maven'
+        }
         maven {
             name = 'sponge'
             url = 'https://repo.spongepowered.org/maven'
@@ -120,7 +123,9 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
     compile 'org.spongepowered:spongeapi:7.3.0-SNAPSHOT'
     compile 'org.spongepowered:mixin:0.8.1-SNAPSHOT'
+    implementation files('spongecommon-1.12.2-7.3.0-dev.jar')
 
+    // compile 'org.spongepowered:spongecommon:7.1.0:dev'
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
     // compile "some.group:artifact:version"

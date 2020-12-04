@@ -1,6 +1,8 @@
 package com.github.mjra007.dragontravel;
 
 import com.github.mjra007.dragontravel.entity.CustomDragon;
+import com.github.mjra007.dragontravel.mixin.spongeforge.SPacketSpawnMobAccessor;
+import net.minecraft.network.play.server.SPacketSpawnMob;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -42,4 +44,13 @@ public class DragontravelMod {
         resourceLocation.getNamespace(), 10, 2, false);
      modLog.info("Registered entity: "+resourceLocation.toString()+", class"+ CustomDragon.class.getName() +"!");
   }
+
+
+  public static SPacketSpawnMob createSpawnPacket(CustomDragon customDragon) {
+    SPacketSpawnMob packet = new SPacketSpawnMob(customDragon);
+    SPacketSpawnMobAccessor accessor = (SPacketSpawnMobAccessor)packet;
+    accessor.accessor$settype(63);
+    return packet;
+  }
+
 }
