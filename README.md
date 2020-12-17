@@ -9,7 +9,7 @@ Works on [SpongeVanilla][4] and [SpongeForge][3].
 [3]: https://github.com/SpongePowered/SpongeForge
 [4]: https://github.com/SpongePowered/SpongeVanilla
 ###### Features
-* Create path flights
+* Create flight paths
 * Create signs/holograms that when click trigger the flight
 * Set prices for flights
 * Different languages support, all messages are customisable
