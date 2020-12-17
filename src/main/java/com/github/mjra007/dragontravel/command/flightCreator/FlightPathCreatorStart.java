@@ -1,11 +1,9 @@
-package com.github.mjra007.dragontravel.command.flightcreator;
+package com.github.mjra007.dragontravel.command.flightCreator;
 
-import com.github.mjra007.dragontravel.FlightRegistry;
+import com.github.mjra007.dragontravel.registries.PlayersPathFlights;
 import com.github.mjra007.dragontravel.flight.Flight.FLIGHT_TYPE;
 import com.github.mjra007.dragontravel.flight.FlightCreator;
-import com.github.mjra007.dragontravel.util.DataKeys;
-import java.util.HashMap;
-import java.util.Map;
+import com.github.mjra007.dragontravel.lang.Lang;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -18,19 +16,8 @@ import org.spongepowered.api.text.Text;
 
 public class FlightPathCreatorStart implements CommandExecutor {
 
-  public static final Map<String,String> FLIGHTPATHMODES = new HashMap<String,String>(){
-    {
-      put("admin", "admin");
-      put("normal","normal");
-    }
-  };
-
   public final static CommandSpec startCommand = CommandSpec.builder()
-      .description(Text.of("EnderDragon"))
-      .arguments(
-          GenericArguments
-              .onlyOne(GenericArguments.choicesInsensitive(Text.of("mode"), FlightPathCreatorStart.FLIGHTPATHMODES)),
-          GenericArguments.onlyOne(GenericArguments.string(Text.of("flight name"))))
+       .arguments(GenericArguments.onlyOne(GenericArguments.string(Text.of("flight name"))))
       .executor(new FlightPathCreatorStart())
       .build();
 
@@ -39,12 +26,10 @@ public class FlightPathCreatorStart implements CommandExecutor {
     if (src instanceof Player) {
 
       Player player = (Player) src;
-      FLIGHT_TYPE flightType = ((String)args.getOne("mode").get()).equalsIgnoreCase("admin") ?
-          FLIGHT_TYPE.ADMIN_FLIGHT : FLIGHT_TYPE.PLAYER_FLIGHT;
       String flightName = (String)args.getOne("flight name").get();
 
       //Checking if user has flight with same name
-      boolean flightWithSameName = FlightRegistry.queryUserWaypointsFlights(map->{
+      boolean flightWithSameName = PlayersPathFlights.queryUserWaypointsFlights(map->{
         if(!map.containsKey(player.getUniqueId()))
           return false;//return immediately if player doesnt have a single flight
           return map.get(player.getUniqueId()).stream().anyMatch(s -> s.getDataManager().get(
@@ -52,15 +37,17 @@ public class FlightPathCreatorStart implements CommandExecutor {
       });
 
       if(flightWithSameName){
-        player.sendMessage(Text.of("You have a flight with the same name. Please choose a different name!"));
+        player.sendMessage(Lang.PREFIX.concat(Lang.FLIGHT_EDITOR_ERRORS_FLIGHT_WITH_SAME_NAME));
         return CommandResult.empty();
       }
 
-      FlightCreator.startEditMode(player.getUniqueId(), flightName, flightType);
+      FlightCreator.startEditMode(player.getUniqueId(), flightName, FLIGHT_TYPE.PUBLIC_PATH_FLIGHT);
 
-      player.sendMessage(Text.builder("Sucessfully created a flight with name: "+flightName).build());
+      player.sendMessage(Lang.PREFIX.concat(Lang.FLIGHT_EDITOR_CREATE));
 
       return CommandResult.success();
+    }else{
+      src.sendMessage(Lang.INVALID_COMMAND_SOURCE);
     }
     return CommandResult.empty();
   }

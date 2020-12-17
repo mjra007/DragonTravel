@@ -2,10 +2,10 @@ package com.github.mjra007.dragontravel.flight;
 
 import com.github.mjra007.dragontravel.particle.LineEffect;
 import com.github.mjra007.dragontravel.particle.TextEffect;
-import com.github.mjra007.dragontravel.util.DataKeys;
-import com.github.mjra007.dragontravel.movementprovider.Path;
+import com.github.mjra007.dragontravel.util.DataKey;
+import com.github.mjra007.dragontravel.movementprovider.movementProvidersImpl.Path;
 import com.github.mjra007.dragontravel.util.WorldVector3d;
-import java.util.Arrays;
+import com.google.common.reflect.TypeToken;
 import java.util.UUID;
  import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
@@ -13,21 +13,25 @@ import org.spongepowered.api.effect.Viewer;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 
-public class WaypointsFlight extends Flight{
+public class PublicPathFlight extends Flight{
 
-  public WaypointsFlight(String name, FLIGHT_TYPE flight_type, Path path, UUID creator) {
+  public static final DataKey<String> FLIGHT_NAME = DataKey.of(TypeToken.of(String.class), "FLIGHT_NAME");
+  public static final DataKey<UUID> FLIGHT_CREATOR = DataKey.of(TypeToken.of(UUID.class), "CREATOR");
+  public static final DataKey<Path> PATH = DataKey.of(TypeToken.of(Path.class), "PATH");
+
+  public PublicPathFlight(String name, FLIGHT_TYPE flight_type, Path path, UUID creator) {
     super(flight_type );
-    dataMap.add(DataKeys.PATH, path);
-    dataMap.add(DataKeys.FLIGHT_CREATOR, creator);
-    dataMap.add(DataKeys.FLIGHT_NAME, name);
+    dataMap.add(PATH, path);
+    dataMap.add(FLIGHT_CREATOR, creator);
+    dataMap.add(FLIGHT_NAME, name);
   }
 
-  public static WaypointsFlight of(String name, FLIGHT_TYPE flight_type, Path path, UUID creator){
-   return  new WaypointsFlight(name, flight_type, path, creator);
+  public static PublicPathFlight of(String name, FLIGHT_TYPE flight_type, Path path, UUID creator){
+   return  new PublicPathFlight(name, flight_type, path, creator);
   }
 
   public void drawPath(Viewer viewer){
-    Path path = getDataManager().get(DataKeys.PATH).get();
+    Path path = getDataManager().get(PATH).get();
 
     for(int i=0;i<path.getPathLength();i++){
       WorldVector3d firstVector = path.getPoints()[i];

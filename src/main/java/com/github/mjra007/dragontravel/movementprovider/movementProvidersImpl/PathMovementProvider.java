@@ -1,7 +1,8 @@
-package com.github.mjra007.dragontravel.movementprovider;
+package com.github.mjra007.dragontravel.movementprovider.movementProvidersImpl;
 
 import com.flowpowered.math.GenericMath;
 import com.flowpowered.math.vector.Vector3d;
+import com.github.mjra007.dragontravel.movementprovider.IMovementProvider;
 import java.util.Optional;
  import net.minecraft.util.math.MathHelper;
  import org.spongepowered.api.util.Tuple;
@@ -11,7 +12,7 @@ import java.util.Optional;
  *  https://github.com/Bukkit/Bukkit/blob/f210234e59275330f83b994e199c76f6abd41ee7/src/main/java/org/bukkit/Location.java#L264
  *  https://bukkit.org/threads/tutorial-how-to-calculate-vectors.138849/
  */
-public class WaypointsMovementProvider implements IMovementProvider {
+public class PathMovementProvider implements IMovementProvider {
 
   private Path currentPath;
   public double speed=0.6;
@@ -22,7 +23,8 @@ public class WaypointsMovementProvider implements IMovementProvider {
 
   private Tuple<Float, Double[]> squaredDistanceAndCoordsDist;
 
-  public WaypointsMovementProvider(Path path){
+  public PathMovementProvider(Path path){
+    path.setCurrentPathIndex(0);
     currentPath=path;
   }
 

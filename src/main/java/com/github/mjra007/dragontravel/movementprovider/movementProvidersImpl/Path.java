@@ -1,4 +1,4 @@
-package com.github.mjra007.dragontravel.movementprovider;
+package com.github.mjra007.dragontravel.movementprovider.movementProvidersImpl;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.github.mjra007.dragontravel.util.WorldVector3d;
@@ -12,6 +12,7 @@ import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class Path implements TypeSerializer<Path> {
+
   private WorldVector3d[] points;
   private int currentPathIndex;
   private int pathLength;

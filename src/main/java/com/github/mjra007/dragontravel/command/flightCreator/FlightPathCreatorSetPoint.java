@@ -1,8 +1,9 @@
-package com.github.mjra007.dragontravel.command.flightcreator;
+package com.github.mjra007.dragontravel.command.flightCreator;
 
 import com.github.mjra007.dragontravel.flight.FlightCreator;
-import com.github.mjra007.dragontravel.movementprovider.Path;
-import com.github.mjra007.dragontravel.util.DataKeys;
+import com.github.mjra007.dragontravel.flight.PublicPathFlight;
+import com.github.mjra007.dragontravel.lang.Lang;
+import com.github.mjra007.dragontravel.movementprovider.movementProvidersImpl.Path;
 import com.github.mjra007.dragontravel.util.WorldVector3d;
 import java.util.Arrays;
 import java.util.Optional;
@@ -19,8 +20,7 @@ import org.spongepowered.api.text.Text;
 public class FlightPathCreatorSetPoint implements CommandExecutor {
 
   public final static CommandSpec pointCommand = CommandSpec.builder()
-      .description(Text.of("EnderDragon"))
-      .arguments(GenericArguments.optional(
+       .arguments(GenericArguments.optional(
           GenericArguments.integer(Text.of("pointIndex"))))
       .executor(new FlightPathCreatorSetPoint())
       .build();
@@ -33,21 +33,23 @@ public class FlightPathCreatorSetPoint implements CommandExecutor {
       Optional<Integer> index = args.getOne("pointIndex");
 
       if(index.isPresent() ){
-
         //clean up virtual blocks
-        Arrays.stream(FlightCreator.getFlightBeingEdited(player.getUniqueId()).getDataManager().get(DataKeys.PATH).get()
+        Arrays.stream(FlightCreator.getFlightBeingEdited(player.getUniqueId()).getDataManager().get(
+            PublicPathFlight.PATH).get()
             .getPoints()).forEach(pos->player.resetBlockChange(pos.getVector().toInt()));
 
-        Path path = FlightCreator.getFlightBeingEdited(player.getUniqueId()).getDataManager().get(DataKeys.PATH).get();
+        Path path = FlightCreator.getFlightBeingEdited(player.getUniqueId()).getDataManager().get(PublicPathFlight.PATH).get();
         if(index.get() < path.getPathLength()){
           path.setPoint(index.get(), WorldVector3d.of(player.getPosition(), player.getWorld().getUniqueId()));
         }
       }else{
         FlightCreator.addWaypoint(player.getUniqueId(), WorldVector3d.of(player.getPosition(), player.getWorld().getUniqueId()));
       }
-      player.sendMessage(Text.builder("Added point "+player.getPosition().toString()).build());
+      player.sendMessage(Lang.FLIGHT_EDITOR_WAYPOINT);
 
       return CommandResult.success();
+    }else{
+      src.sendMessage(Lang.INVALID_COMMAND_SOURCE);
     }
     return CommandResult.empty();
   }

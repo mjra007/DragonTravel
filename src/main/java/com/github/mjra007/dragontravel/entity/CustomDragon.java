@@ -2,11 +2,13 @@ package com.github.mjra007.dragontravel.entity;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.github.mjra007.dragontravel.movementprovider.IMovementProvider;
-import java.util.Optional;
+import com.github.mjra007.dragontravel.movementprovider.movementProvidersImpl.Path;
+import com.github.mjra007.dragontravel.movementprovider.movementProvidersImpl.PathMovementProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.world.World;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.world.Location;
 
 
 public class CustomDragon extends EntityDragon {
@@ -48,6 +50,14 @@ public class CustomDragon extends EntityDragon {
   public void startFlight(Player player, IMovementProvider movementProvider){
     this.rider = (Entity) player;
     this.movementProvider = movementProvider;
+  }
+
+  public static CustomDragon spawnDragonAndStartFlight(Player player, Path path, org.spongepowered.api.entity.Entity entity) {
+    player.setLocation(new Location<>(player.getWorld(), path.getCurrentPos().getVector()));
+    player.getWorld().spawnEntity(entity);
+    ((net.minecraft.entity.Entity) player).startRiding(((CustomDragon) entity),true);
+    ((CustomDragon) entity).startFlight(player, new PathMovementProvider(path));
+    return ((CustomDragon) entity);
   }
 
 

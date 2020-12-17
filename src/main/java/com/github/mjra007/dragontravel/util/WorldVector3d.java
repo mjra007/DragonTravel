@@ -60,4 +60,28 @@ public class WorldVector3d implements TypeSerializer<WorldVector3d> {
     value.getNode("Z").setValue(vector3d.getZ());
     value.getNode("World").setValue(world.toString());
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    WorldVector3d that = (WorldVector3d) o;
+
+    if (!vector3d.equals(that.vector3d)) {
+      return false;
+    }
+    return world.equals(that.world);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = vector3d.hashCode();
+    result = 31 * result + world.hashCode();
+    return result;
+  }
 }

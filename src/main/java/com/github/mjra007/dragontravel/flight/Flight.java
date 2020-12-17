@@ -8,7 +8,7 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 @ConfigSerializable
 public class Flight {
 
-  public enum FLIGHT_TYPE {ADMIN_FLIGHT, PLAYER_FLIGHT, NORMAL_PLAYER_HOME_FLIGHT}
+  public enum FLIGHT_TYPE {PUBLIC_PATH_FLIGHT, PLAYER_PATH_FLIGHT, PLAYER_HOME_FLIGHT}
 
   @Setting("Unique Identifier")
   public final UUID flightID;
